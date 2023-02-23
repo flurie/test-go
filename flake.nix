@@ -36,7 +36,7 @@
             inherit version;
             # In 'nix develop', we don't need a copy of the source tree
             # in the Nix store.
-            src = ./go/.;
+            src = pkgs.lib.cleanSource ./go;
             subPackages = [ "bin/ctl" ];
 
             # This hash locks the dependencies of this package. It is
@@ -47,10 +47,13 @@
             # it should be "out-of-band" with other tooling (eg. gomod2nix).
             # To begin with it is recommended to set this, but one must
             # remeber to bump this hash when your dependencies change.
-            vendorSha256 = "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=";
+            vendorSha256 = null; #"sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=";
+          };
+          devShell = pkgs.mkShell {
+            packages = [ pkgs.go ];
           };
         });
-
+      devShells = forAllSystems (system: self.packages.${system}.devShell);
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
